@@ -1,0 +1,145 @@
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #4f46e5;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --accent-color: #14b8a6;
+  --error-color: #ef4444;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --border-color: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  padding: 1.5rem;
+}
+
+/* Layout */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: var(--card-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-light);
+  transition: all 0.2s;
+  gap: 0.75rem;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: #eff6ff;
+  color: var(--primary-color);
+  border-right: 3px solid var(--primary-color);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.top-navbar {
+  height: 64px;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 2rem;
+}
+
+.page-content {
+  padding: 2rem;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-size: 1rem;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: 2px solid var(--primary-color);
+  border-color: transparent;
+}
