@@ -1,13 +1,26 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const ResultSchema = new mongoose.Schema({
-    studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    aptitudeScore: { type: Number, required: true },
-    recommendedColleges: [{
-        college: { type: mongoose.Schema.Types.ObjectId, ref: 'College' },
-        matchPercentage: { type: Number }
-    }],
-    date: { type: Date, default: Date.now }
+const resultSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User'
+  },
+  scores: {
+    quantitative: { type: Number, default: 0 },
+    logicalReasoning: { type: Number, default: 0 },
+    verbal: { type: Number, default: 0 }
+  },
+  totalScore: {
+    type: Number,
+    required: true
+  },
+  careerSuitability: {
+    type: String
+  }
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('Result', ResultSchema);
+const Result = mongoose.model('Result', resultSchema);
+export default Result;

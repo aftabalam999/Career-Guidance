@@ -1,34 +1,39 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import connectDB from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import collegeRoutes from './routes/collegeRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+import savedCollegeRoutes from './routes/savedCollegeRoutes.js';
+
+dotenv.config();
+
+// Connect to database
+connectDB();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/colleges', require('./routes/colleges'));
-app.use('/api/tests', require('./routes/tests'));
-app.use('/api/results', require('./routes/results'));
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/colleges', collegeRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/saved', savedCollegeRoutes);
 
 app.get('/', (req, res) => {
-    res.send('API is running');
+  res.send('Career Guidance API is running...');
 });
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-if (process.env.MONGO_URI) {
-    mongoose.connect(process.env.MONGO_URI).then(() => {
-        console.log('MongoDB connected');
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    }).catch(err => {
-        console.error('Database connection error:', err);
-    });
-} else {
-    console.log('No MONGO_URI provided in environment, starting server without DB.');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 }
+
+export default app;

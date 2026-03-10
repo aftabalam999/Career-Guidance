@@ -1,15 +1,28 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const CollegeSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    location: { type: String, required: true }, // "India" or "Abroad"
-    city: { type: String },
-    ranking: { type: Number, required: true }, // 1 is best
-    fees: { type: Number, required: true }, // in some currency or normalized
-    placementPercentage: { type: Number, required: true }, // 0 to 100
-    eligibilityMarks: { type: Number, required: true }, // e.g. 60%
-    courseOffered: [{ type: String }], // e.g. Engineering, Management
-    description: { type: String }
+const collegeSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String },
+  location: { type: String, required: true },
+  collegeType: { type: String, enum: ['Public', 'Private'], required: true },
+  ranking: { type: Number },
+  placementPercentage: { type: Number },
+  feesRange: { type: String },
+  courses: [{
+    name: String,
+    seats: Number,
+    fees: Number
+  }],
+  campusSize: { type: String },
+  hostelAvailable: { type: Boolean, default: false },
+  reviews: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    rating: { type: Number, required: true },
+    comment: String
+  }]
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('College', CollegeSchema);
+const College = mongoose.model('College', collegeSchema);
+export default College;
