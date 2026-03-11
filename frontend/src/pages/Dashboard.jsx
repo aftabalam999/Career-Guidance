@@ -1,10 +1,12 @@
 import React from 'react';
 import { BookOpen, Target, Heart, Briefcase, TrendingUp, Users } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
+  const { user } = useAuth();
   return (
     <div>
-      <h1>Welcome back, Student!</h1>
+      <h1>Welcome back, {user?.name || 'Student'}!</h1>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Here is your personalized career and college insight dashboard.</p>
 
       {/* Widgets Section */}

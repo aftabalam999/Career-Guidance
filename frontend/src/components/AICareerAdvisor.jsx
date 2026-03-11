@@ -1,22 +1,41 @@
 import React, { useState } from 'react';
 import { MessageSquare, X, Send } from 'lucide-react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const AICareerAdvisor = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
   const [messages, setMessages] = useState([
     { text: "Hi! I'm your AI Career Advisor. Ask me anything about colleges, careers, or eligibility.", sender: 'ai' }
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([...messages, { text: input, sender: 'user' }]);
-    setInput("");
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
     
-    // Fake AI response
-    setTimeout(() => {
-      setMessages(prev => [...prev, { text: "That's a great question! I'm currently gathering insights based on your profile to answer that.", sender: 'ai' }]);
-    }, 1000);
+    const userMessage = { text: input, sender: 'user' };
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setLoading(true);
+    
+    try {
+      if (!user) {
+        setMessages(prev => [...prev, { text: "Please login to chat with me!", sender: 'ai' }]);
+        setLoading(false);
+        return;
+      }
+
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const { data } = await axios.post('/api/ai/chat', { query: input }, config);
+      
+      setMessages(prev => [...prev, { text: data.response, sender: 'ai' }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { text: "Sorry, I'm having trouble connecting to my brain right now.", sender: 'ai' }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,7 +73,7 @@ const AICareerAdvisor = () => {
           right: '2rem',
           width: '350px',
           height: '500px',
-          backgroundColor: 'var(--color-card-bg)',
+          backgroundColor: 'white',
           borderRadius: '0.75rem',
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
           border: '1px solid var(--color-border)',
@@ -84,7 +103,7 @@ const AICareerAdvisor = () => {
               borderRadius: '1rem',
               borderBottomRightRadius: msg.sender === 'user' ? '0' : '1rem',
               borderBottomLeftRadius: msg.sender === 'ai' ? '0' : '1rem',
-              maxWidth: '80%',
+              maxWidth: '85%',
               boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
               border: msg.sender === 'ai' ? '1px solid var(--color-border)' : 'none',
               fontSize: '14px',
@@ -93,6 +112,9 @@ const AICareerAdvisor = () => {
               {msg.text}
             </div>
           ))}
+          {loading && (
+            <div style={{ alignSelf: 'flex-start', color: 'var(--text-secondary)', fontSize: '12px', fontStyle: 'italic' }}>AI is thinking...</div>
+          )}
         </div>
 
         {/* Input */}
@@ -103,11 +125,13 @@ const AICareerAdvisor = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type your message..." 
+            disabled={loading}
             style={{ flex: 1, padding: '0.75rem', borderRadius: '2rem', border: '1px solid var(--color-border)', outline: 'none' }}
           />
           <button 
             onClick={handleSend}
-            style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--color-primary)', color: 'white', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+            disabled={loading}
+            style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: loading ? 'var(--color-border)' : 'var(--color-primary)', color: 'white', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: loading ? 'default' : 'pointer' }}
           >
             <Send size={18} />
           </button>

@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { data } = await axios.post('/api/auth/register', formData);
-      localStorage.setItem('userInfo', JSON.stringify(data));
+      login(data);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || err.message);

@@ -3,11 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MapPin, GraduationCap, Building2, TrendingUp, Wallet, Star } from 'lucide-react';
 import { useColleges } from '../context/CollegeContext';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const CollegeDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCompare } = useColleges();
+    const { user } = useAuth();
+    const { showToast } = useToast();
     const [college, setCollege] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -27,15 +31,14 @@ const CollegeDetails = () => {
     }, [id]);
 
     const handleSave = async () => {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        if (!userInfo) { navigate('/login'); return; }
+        if (!user) { navigate('/login'); return; }
         
         try {
-            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
             await axios.post('/api/saved', { collegeId: id }, config);
-            alert("College saved to favorites!");
+            showToast("College saved to favorites!", "success");
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to save college");
+            showToast(err.response?.data?.message || "Failed to save college", "error");
         }
     };
 

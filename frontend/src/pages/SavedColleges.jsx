@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { MapPin, Building2, TrendingUp, Wallet, X } from 'lucide-react';
 
 const SavedColleges = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const { showToast } = useToast();
     const [saved, setSaved] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     const fetchSaved = async () => {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        if (!userInfo) { navigate('/login'); return; }
+        if (!user) { navigate('/login'); return; }
 
         try {
-            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const { data } = await axios.get('/api/saved', config);
             setSaved(data);
             setLoading(false);
@@ -29,14 +32,14 @@ const SavedColleges = () => {
     }, []);
 
     const handleRemove = async (collegeId) => {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const config = { headers: { Authorization: `Bearer ${user.token}` } };
         
         try {
             await axios.delete(`/api/saved/${collegeId}`, config);
             setSaved(saved.filter(item => item.college._id !== collegeId));
+            showToast("College removed from saved list", "info");
         } catch (err) {
-            alert("Failed to remove college from saved list");
+            showToast("Failed to remove college from saved list", "error");
         }
     };
 

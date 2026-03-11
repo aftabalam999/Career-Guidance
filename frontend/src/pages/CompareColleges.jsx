@@ -36,7 +36,7 @@ const CompareColleges = () => {
                     <p style={{ color: 'var(--text-secondary)' }}>Detailed side-by-side analysis of your top choices.</p>
                 </div>
                 {compareList.length > 0 && (
-                    <button className="btn-outline" onClick={clearCompare} style={{ color: 'var(--color-error)', borderColor: 'var(--color-error)' }}>
+                    <button className="btn-danger" onClick={clearCompare}>
                         Clear All
                     </button>
                 )}
