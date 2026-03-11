@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { MapPin, Building2, TrendingUp, Wallet, X } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 const SavedColleges = () => {
     const navigate = useNavigate();
@@ -48,6 +49,7 @@ const SavedColleges = () => {
 
     return (
         <div className="p-8 page-transition" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <BackButton />
             <div style={{ marginBottom: '2.5rem' }}>
                 <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>My Saved Colleges</h1>
                 <p style={{ color: 'var(--text-secondary)' }}>You have {saved.length} institutes saved to your wishlist.</p>

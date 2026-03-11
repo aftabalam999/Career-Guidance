@@ -4,6 +4,8 @@ import Scholarship from '../models/Scholarship.js';
 import Result from '../models/Result.js';
 import AptitudeQuestion from '../models/AptitudeQuestion.js';
 import Review from '../models/Review.js';
+import Notification from '../models/Notification.js';
+import Settings from '../models/Settings.js';
 import fs from 'fs';
 import csv from 'csv-parser';
 
@@ -98,6 +100,17 @@ export const createCollege = async (req, res) => {
   try {
     const college = new College(req.body);
     const savedCollege = await college.save();
+    
+    // Notify all students (simplified for this demo)
+    const students = await User.find({ role: 'student' });
+    const notifications = students.map(student => ({
+      user: student._id,
+      type: 'new_college',
+      message: `A new institute "${savedCollege.name}" has been added in ${savedCollege.location}. Check it out!`
+    }));
+    
+    await Notification.insertMany(notifications);
+    
     res.status(201).json(savedCollege);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -272,3 +285,32 @@ export const deleteReview = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Settings Management
+export const getAdminSettings = async (req, res) => {
+  try {
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = await Settings.create({});
+    }
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateAdminSettings = async (req, res) => {
+  try {
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = new Settings(req.body);
+    } else {
+      Object.assign(settings, req.body);
+    }
+    await settings.save();
+    res.json(settings);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+

@@ -236,6 +236,14 @@ button {
 .toast.info { border-left-color: var(--color-info); }
 .toast.warning { border-left-color: var(--color-warning); }
 
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+
 .toast-content {
   flex: 1;
   font-size: 0.9rem;
@@ -265,6 +273,12 @@ button {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(100%); opacity: 0; }
 }
+
+.color-success { color: var(--color-success); }
+.color-error { color: var(--color-error); }
+.color-info { color: var(--color-info); }
+.color-warning { color: var(--color-warning); }
+
 
 
 .back-btn-hover {

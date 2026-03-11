@@ -3,6 +3,7 @@ import axios from 'axios';
 import { User, Book, MapPin, DollarSign, Target, Save, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import BackButton from '../components/BackButton';
 
 const Profile = () => {
   const { user, login } = useAuth();
@@ -65,6 +66,7 @@ const Profile = () => {
 
   return (
     <div className="page-transition" style={{ maxWidth: '900px', margin: '0 auto', paddingBottom: '3rem' }}>
+      <BackButton />
       <div style={{ marginBottom: '2.5rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>Student Profile</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Manage your academic details and preferences to refine your AI recommendations.</p>

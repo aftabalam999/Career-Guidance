@@ -1,9 +1,11 @@
 import React from 'react';
 import { Lock, Bell, Shield, Trash2 } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 const Settings = () => {
   return (
-    <div style={{ maxWidth: '800px' }}>
+    <div style={{ maxWidth: '800px' }} className="page-transition">
+      <BackButton />
       <div style={{ marginBottom: '2rem' }}>
         <h1>Settings</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Manage your account configuration and privacy.</p>

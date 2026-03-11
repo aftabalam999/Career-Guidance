@@ -1,5 +1,21 @@
-node_modules
+# Common
+node_modules/
 .env
-.vscode
-/backend/.env
-/frontend/.env
+.env.local
+.vscode/
+.DS_Store
+*.log
+
+# Backend
+backend/uploads/
+backend/.env
+
+# Frontend
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+
+# Gemini/System
+.gemini/
+.agents/

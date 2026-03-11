@@ -1,6 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import College from '../models/College.js';
 import User from '../models/User.js';
+import AptitudeQuestion from '../models/AptitudeQuestion.js';
+import Result from '../models/Result.js';
+import Scholarship from '../models/Scholarship.js';
+import Settings from '../models/Settings.js';
 
 // Initialize Gemini API
 const getGenAI = () => {
@@ -20,6 +24,12 @@ export const getRecommendations = async (req, res) => {
 
     const profile = user.studentProfile || {};
     
+    // Fetch global settings for weights
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = await Settings.create({});
+    }
+
     // Fetch all top colleges to pass logic to AI
     const colleges = await College.find({}).limit(10).lean();
 
@@ -33,6 +43,12 @@ export const getRecommendations = async (req, res) => {
       Interests: ${profile.interests || 'Not specified'}
       Location Preference: ${profile.preferredLocation || 'Any'}
       Aptitude Score: ${profile.aptitudeScore || 0}%
+
+      Use the following evaluation weights defined by the system administrator:
+      - Academic Performance: ${settings.academicWeight}%
+      - Aptitude Score: ${settings.aptitudeWeight}%
+      - Current Placement Trends: ${settings.placementWeight}%
+      - Financial/Budget Fit: ${settings.budgetWeight}%
 
       Rank the following top colleges out of 100 based on fit, returning a formatted JSON array containing the college ID (id), match percentage (match, 0-100 integer), and a short 1 sentence reason (reason).
       Colleges Data: ${JSON.stringify(colleges.map(c => ({ id: c._id, name: c.name, location: c.location, fees: c.feesRange, type: c.collegeType })))}
@@ -94,3 +110,90 @@ export const aiChatQuery = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get Aptitude Test Questions for Student
+// @route   GET /api/ai/test-questions
+// @access  Private
+export const getTestQuestions = async (req, res) => {
+  try {
+    // Return random questions
+    const questions = await AptitudeQuestion.aggregate([{ $sample: { size: 5 } }]);
+    res.json(questions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Submit Aptitude Test
+// @route   POST /api/ai/submit-test
+// @access  Private
+export const submitTest = async (req, res) => {
+  try {
+    const { answers } = req.body; 
+    const user = await User.findById(req.user._id);
+
+    const questionIds = Object.keys(answers);
+    const questions = await AptitudeQuestion.find({ _id: { $in: questionIds } });
+
+    let correctCount = 0;
+    const sectionScores = { 
+        Quantitative: { correct: 0, total: 0 }, 
+        'Logical Reasoning': { correct: 0, total: 0 }, 
+        Verbal: { correct: 0, total: 0 } 
+    };
+
+    questions.forEach(q => {
+      const userAnswer = answers[q._id.toString()];
+      const isCorrect = q.correctAnswer === userAnswer;
+      
+      if (isCorrect) correctCount++;
+      
+      if (sectionScores[q.section]) {
+        sectionScores[q.section].total++;
+        if (isCorrect) sectionScores[q.section].correct++;
+      }
+    });
+
+    const score = Math.round((correctCount / questions.length) * 100);
+    
+    let suitability = 'General';
+    if (score >= 80) suitability = 'Highly Suitable for Advanced Engineering/Tech';
+    else if (score >= 60) suitability = 'Suitable for Professional Management';
+    else if (score >= 40) suitability = 'Suitable for Creative Arts & Design';
+    else suitability = 'Developing Aptitude';
+
+    const result = new Result({
+      user: user._id,
+      scores: {
+        quantitative: sectionScores.Quantitative.correct,
+        logical: sectionScores['Logical Reasoning'].correct,
+        verbal: sectionScores.Verbal.correct
+      },
+      totalScore: score,
+      suitability
+    });
+
+    await result.save();
+
+    user.studentProfile.aptitudeScore = score;
+    await user.save();
+
+    res.json({ score, suitability, resultId: result._id });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get All Scholarships for Students
+// @route   GET /api/ai/scholarships
+// @access  Private
+export const getScholarships = async (req, res) => {
+  try {
+    const scholarships = await Scholarship.find({});
+    res.json(scholarships);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+

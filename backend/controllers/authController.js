@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', {
@@ -23,6 +24,13 @@ export const registerUser = async (req, res) => {
       email,
       password,
       role: role || 'student'
+    });
+    
+    // Create welcome notification
+    await Notification.create({
+      user: user._id,
+      type: 'system',
+      message: `Welcome to CareerPath AI, ${user.name}! Take an Aptitude Test to get personalized recommendations.`
     });
 
     if (user) {

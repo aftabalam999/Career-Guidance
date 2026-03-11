@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Bell, Search, UserCircle } from 'lucide-react';
+import NotificationDropdown from '../../components/NotificationDropdown';
 
 const AdminNavbar = () => {
   const { user } = useAuth();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${user.token}` } };
+        const { data } = await axios.get('/api/notifications', config);
+        setUnreadCount(data.filter(n => !n.isRead).length);
+      } catch (err) {
+        console.error('Error fetching unread notifications');
+      }
+    };
+    fetchUnread();
+    
+    // Refresh every minute
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [user.token]);
 
   return (
     <div style={{ height: '70px', width: 'calc(100% - 260px)', position: 'fixed', right: 0, top: 0, backgroundColor: 'white', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2.5rem', zIndex: 999 }}>
@@ -17,9 +38,18 @@ const AdminNavbar = () => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <div style={{ position: 'relative', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+        <div 
+          onClick={() => setShowNotifications(!showNotifications)}
+          style={{ position: 'relative', cursor: 'pointer', color: 'var(--text-secondary)' }}
+        >
           <Bell size={22} />
-          <div style={{ position: 'absolute', top: '-2px', right: '-2px', width: '8px', height: '8px', backgroundColor: '#EF4444', borderRadius: '50%', border: '2px solid white' }}></div>
+          {unreadCount > 0 && (
+            <div style={{ position: 'absolute', top: '-1px', right: '-1px', minWidth: '14px', height: '14px', backgroundColor: '#EF4444', borderRadius: '50%', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: '800', color: 'white' }}>
+              {unreadCount}
+            </div>
+          )}
+          
+          {showNotifications && <NotificationDropdown onClose={() => setShowNotifications(false)} />}
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid var(--color-border)', paddingLeft: '1.5rem' }}>

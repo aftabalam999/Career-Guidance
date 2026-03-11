@@ -2,6 +2,7 @@ import React from 'react';
 import { useColleges } from '../context/CollegeContext';
 import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, TrendingUp, Wallet, GraduationCap, X } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 const CompareColleges = () => {
     const { compareList, removeFromCompare, clearCompare } = useColleges();
@@ -10,6 +11,7 @@ const CompareColleges = () => {
     if (compareList.length === 0) {
         return (
             <div className="p-8 page-transition" style={{ textAlign: 'center', marginTop: '4rem' }}>
+                <BackButton style={{ justifyContent: 'center' }} />
                 <Building2 size={64} style={{ color: 'var(--color-primary)', marginBottom: '1.5rem', opacity: '0.4' }} />
                 <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '1rem' }}>Comparison List Empty</h1>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem' }}>Select up to 3 colleges from the explorer to compare them side-by-side.</p>
@@ -30,6 +32,7 @@ const CompareColleges = () => {
 
     return (
         <div className="p-8 page-transition">
+            <BackButton />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                 <div>
                     <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>College Comparison</h1>

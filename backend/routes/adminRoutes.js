@@ -20,7 +20,9 @@ import {
   getAdminReviews,
   deleteReview,
   updateScholarship,
-  importColleges
+  importColleges,
+  getAdminSettings,
+  updateAdminSettings
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -29,6 +31,11 @@ const upload = multer({ dest: 'uploads/' });
 // Apply protection to all routes in this file
 router.use(protect);
 router.use(admin);
+
+// Settings
+router.route('/settings')
+  .get(getAdminSettings)
+  .put(updateAdminSettings);
 
 // Stats & Analytics
 router.get('/stats', getAdminStats);
