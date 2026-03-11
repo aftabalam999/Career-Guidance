@@ -5,6 +5,7 @@ import { MapPin, GraduationCap, Building2, TrendingUp, Wallet, Star } from 'luci
 import { useColleges } from '../context/CollegeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import BackButton from '../components/BackButton';
 
 const CollegeDetails = () => {
     const { id } = useParams();
@@ -47,6 +48,7 @@ const CollegeDetails = () => {
 
     return (
         <div className="p-8 page-transition" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <BackButton />
             <div className="card" style={{ padding: '2rem', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>

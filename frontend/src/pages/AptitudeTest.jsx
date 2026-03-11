@@ -1,9 +1,11 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 const AptitudeTest = () => {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <BackButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
           <h1>Aptitude Evaluation</h1>
@@ -48,8 +50,8 @@ const AptitudeTest = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2.5rem' }}>
-          <button style={{ padding: '0.5rem 1.5rem', borderRadius: '0.375rem', border: '1px solid var(--color-border)', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: '500' }}>Previous</button>
-          <button className="btn-primary" style={{ padding: '0.5rem 1.5rem' }}>Next Question</button>
+          <button className="btn-outline">Previous</button>
+          <button className="btn-primary">Next Question</button>
         </div>
       </div>
     </div>

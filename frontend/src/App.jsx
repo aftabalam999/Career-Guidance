@@ -3,8 +3,22 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import CollegeExplorer from './pages/CollegeExplorer';
+import AICareerAdvisor from './components/AICareerAdvisor';
 import CollegeDetails from './pages/CollegeDetails';
 import AIRecommendations from './pages/AIRecommendations';
+
+// Admin Imports
+import AdminLayout from './admin/components/AdminLayout';
+import AdminDashboard from './admin/pages/AdminDashboard';
+import AdminCollegeManager from './admin/pages/AdminCollegeManager';
+import AdminUserManager from './admin/pages/AdminUserManager';
+import AdminDatasetImport from './admin/pages/AdminDatasetImport';
+import AdminAptitudeManager from './admin/pages/AdminAptitudeManager';
+import AdminScholarshipManager from './admin/pages/AdminScholarshipManager';
+import AdminReviewManager from './admin/pages/AdminReviewManager';
+import AdminSettings from './admin/pages/AdminSettings';
+import AdminAnalytics from './admin/pages/AdminAnalytics';
+import AdminPlaceholder from './admin/pages/AdminPlaceholder';
 import AptitudeTest from './pages/AptitudeTest';
 import CompareColleges from './pages/CompareColleges';
 import SavedColleges from './pages/SavedColleges';
@@ -44,7 +58,20 @@ function App() {
                 <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
                 <Route path="settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
               </Route>
-            </Routes>
+
+          {/* Admin Dashboard Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="colleges" element={<AdminCollegeManager />} />
+            <Route path="users" element={<AdminUserManager />} />
+            <Route path="tests" element={<AdminAptitudeManager />} />
+            <Route path="import" element={<AdminDatasetImport />} />
+            <Route path="scholarships" element={<AdminScholarshipManager />} />
+            <Route path="reviews" element={<AdminReviewManager />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+        </Routes>
           </BrowserRouter>
         </CollegeProvider>
       </AuthProvider>

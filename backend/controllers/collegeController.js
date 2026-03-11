@@ -33,7 +33,11 @@ export const getColleges = async (req, res) => {
 // @access  Public
 export const getCollegeById = async (req, res) => {
   try {
-    const college = await College.findById(req.params.id).populate('reviews.user', 'name');
+    const college = await College.findByIdAndUpdate(
+      req.params.id, 
+      { $inc: { views: 1 } }, 
+      { new: true }
+    ).populate('reviews.user', 'name');
 
     if (college) {
       res.json(college);

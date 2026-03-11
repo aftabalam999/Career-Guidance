@@ -23,6 +23,17 @@ const TopNavbar = () => {
               <UserCircle size={28} style={{ color: 'var(--color-primary)' }} />
               <span style={{ fontWeight: '500' }}>{user.name}</span>
             </div>
+
+            {user.role === 'admin' && (
+              <button 
+                onClick={() => navigate('/admin')}
+                className="btn-primary" 
+                style={{ padding: '0.4rem 1rem', fontSize: '13px' }}
+              >
+                Admin Dashboard
+              </button>
+            )}
+
             <button 
               onClick={handleLogout}
               style={{ 

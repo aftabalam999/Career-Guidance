@@ -20,39 +20,52 @@ export const getRecommendations = async (req, res) => {
 
     const profile = user.studentProfile || {};
     
-    // Fetch all top colleges (or limit, depending on implementation) to pass logic to AI or filter manually
-    // We'll limit to 10 for AI to rank them based on prompt size
+    // Fetch all top colleges to pass logic to AI
     const colleges = await College.find({}).limit(10).lean();
 
     const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
       As an expert AI Career Advisor, evaluate the following student profile:
-      Marks: 10th(${profile.marks10}%) 12th(${profile.marks12}%)
-      Budget: ${profile.budget}
-      Interests: ${profile.interests}
-      Location Preference: ${profile.preferredLocation}
-      Aptitude Score: ${profile.aptitudeScore}%
+      Marks: 10th(${profile.marks10 || 0}%) 12th(${profile.marks12 || 0}%)
+      Budget: ${profile.budget || 'Not specified'}
+      Interests: ${profile.interests || 'Not specified'}
+      Location Preference: ${profile.preferredLocation || 'Any'}
+      Aptitude Score: ${profile.aptitudeScore || 0}%
 
-      Rank the following top colleges out of 100 based on fit, returning a formatted JSON array containing the college ID, match percentage (0-100 integer), and a short 1 sentence reason.
+      Rank the following top colleges out of 100 based on fit, returning a formatted JSON array containing the college ID (id), match percentage (match, 0-100 integer), and a short 1 sentence reason (reason).
       Colleges Data: ${JSON.stringify(colleges.map(c => ({ id: c._id, name: c.name, location: c.location, fees: c.feesRange, type: c.collegeType })))}
 
       ONLY RETURN A VALID JSON ARRAY. No markdown wrapping.
-      Example: [{"id": "123", "match": 95, "reason": "Perfect fit"}]
+      Example: [{"id": "ID_HERE", "match": 95, "reason": "Reason here"}]
     `;
 
     const result = await model.generateContent(prompt);
     let output = result.response.text();
-    
-    // Clean potential markdown blocks
     output = output.replace(/```json/g, '').replace(/```/g, '').trim();
 
-    const recommendations = JSON.parse(output);
+    const aiRecs = JSON.parse(output);
+
+    // Merge AI recommendations with full college data
+    const recommendations = aiRecs.map(rec => {
+      const collegeData = colleges.find(c => c._id.toString() === rec.id.toString());
+      return { ...rec, college: collegeData };
+    }).filter(r => r.college); // Ensure we only return if college exists
 
     res.json({ recommendations });
   } catch (error) {
-    res.status(500).json({ message: error.message, advice: "Ensure GEMINI_API_KEY is configured." });
+    if (error.message.includes('API key not valid')) {
+      return res.status(500).json({ 
+        message: "The Gemini API Key provided in the backend .env is invalid. Please get a fresh key from 'aistudio.google.com' and update your .env file." 
+      });
+    }
+    if (error.message.includes('429') || error.message.includes('Resource has been exhausted')) {
+      return res.status(500).json({ 
+        message: "AI quota reached. Please wait a minute before trying again (Gemini Free Tier limit)." 
+      });
+    }
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -64,7 +77,7 @@ export const aiChatQuery = async (req, res) => {
     const { message } = req.body;
     
     const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
       You are CareerPath AI, a friendly conversational career advisor. 

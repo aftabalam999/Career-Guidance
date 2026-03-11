@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes.js';
 import collegeRoutes from './routes/collegeRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import savedCollegeRoutes from './routes/savedCollegeRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/colleges', collegeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/saved', savedCollegeRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
   res.send('Career Guidance API is running...');
