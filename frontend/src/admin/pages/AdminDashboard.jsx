@@ -8,7 +8,8 @@ import {
   TrendingUp,
   UserPlus,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Loader2
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -42,13 +43,17 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div>Loading Admin Hub...</div>;
+  if (loading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+       <Loader2 className="animate-spin" size={40} color="var(--color-primary)" />
+    </div>
+  );
 
   const statCards = [
-    { name: 'Total Users', value: stats?.totalUsers, icon: <Users size={24} />, color: '#7C3AED', trend: '+12%' },
-    { name: 'Total Colleges', value: stats?.totalColleges, icon: <Building2 size={24} />, color: '#10B981', trend: '+4%' },
-    { name: 'Tests Completed', value: stats?.testsCompleted, icon: <ClipboardCheck size={24} />, color: '#F59E0B', trend: '+28%' },
-    { name: 'Active Scholarships', value: stats?.activeScholarships, icon: <Award size={24} />, color: '#EF4444', trend: '-2%' },
+    { name: 'Total Students', value: stats?.totalUsers, icon: <Users size={24} />, color: '#7C3AED', trend: '+100%' },
+    { name: 'Total Colleges', value: stats?.totalColleges, icon: <Building2 size={24} />, color: '#10B981', trend: '+5%' },
+    { name: 'Tests Completed', value: stats?.testsCompleted, icon: <ClipboardCheck size={24} />, color: '#F59E0B', trend: '+20%' },
+    { name: 'Active Scholarships', value: stats?.activeScholarships, icon: <Award size={24} />, color: '#EF4444', trend: 'Live' },
   ];
 
   return (
@@ -66,8 +71,8 @@ const AdminDashboard = () => {
               <div style={{ padding: '0.75rem', backgroundColor: `${stat.color}15`, color: stat.color, borderRadius: '12px' }}>
                 {stat.icon}
               </div>
-              <div style={{ color: stat.trend.startsWith('+') ? '#10B981' : '#EF4444', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
-                {stat.trend.startsWith('+') ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />} {stat.trend}
+              <div style={{ color: stat.trend.includes('+') ? '#10B981' : '#F59E0B', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+                {stat.trend.includes('+') ? <ArrowUpRight size={16} /> : null} {stat.trend}
               </div>
             </div>
             <h3 style={{ fontSize: '2rem', fontWeight: '800', margin: 0 }}>{stat.value}</h3>
@@ -79,7 +84,7 @@ const AdminDashboard = () => {
       {/* Charts Section */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
         <div className="card" style={{ padding: '1.5rem', height: '400px' }}>
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: '700' }}>User Registrations (Last 6 Months)</h3>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: '700' }}>User Growth</h3>
           <ResponsiveContainer width="100%" height="90%">
             <AreaChart data={analytics?.userGrowth}>
               <defs>
@@ -113,7 +118,7 @@ const AdminDashboard = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
         <div className="card" style={{ padding: '1.5rem', height: '400px' }}>
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: '700' }}>Career Interest Distribution</h3>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: '700' }}>Career Interests</h3>
           <ResponsiveContainer width="100%" height="90%">
             <PieChart>
               <Pie
@@ -125,7 +130,7 @@ const AdminDashboard = () => {
                 nameKey="_id"
                 label
               >
-                {analytics?.careerPrefs.map((entry, index) => (
+                {analytics?.careerPrefs?.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6'][index % 5]} />
                 ))}
               </Pie>
@@ -138,18 +143,21 @@ const AdminDashboard = () => {
         <div className="card" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: '700' }}>Recent Platform Activity</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {[1,2,3,4,5].map(i => (
-              <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
-                  <UserPlus size={20} />
+            {stats?.recentActivity?.length > 0 ? (
+              stats.recentActivity.map((act, i) => (
+                <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'rgba(124, 58, 237, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7C3AED' }}>
+                    <UserPlus size={20} />
+                  </div>
+                  <div style={{ flexGrow: 1 }}>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>{act.message}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>Registration date: {new Date(act.time).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>New Student Registered</p>
-                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>user_#{i}34 joined the guidance platform</p>
-                </div>
-                <div style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text-secondary)' }}>{i}h ago</div>
-              </div>
-            ))}
+              ))
+            ) : (
+                <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>No recent registrations.</p>
+            )}
           </div>
         </div>
       </div>

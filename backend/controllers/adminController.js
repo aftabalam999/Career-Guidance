@@ -19,11 +19,21 @@ export const getAdminStats = async (req, res) => {
       deadline: { $gte: new Date() }
     });
 
+    const recentActivity = await User.find({ role: 'student' })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('name createdAt');
+
     res.json({
       totalUsers,
       totalColleges,
       testsCompleted,
-      activeScholarships
+      activeScholarships,
+      recentActivity: recentActivity.map(u => ({
+        type: 'registration',
+        message: `New Student: ${u.name}`,
+        time: u.createdAt
+      }))
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -313,4 +323,3 @@ export const updateAdminSettings = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-

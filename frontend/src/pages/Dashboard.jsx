@@ -1,11 +1,37 @@
-import React from 'react';
-import { BookOpen, Target, Heart, Briefcase, TrendingUp, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { BookOpen, Target, Heart, Briefcase, TrendingUp, Users, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const { data } = await axios.get('/api/users/dashboard-stats', config);
+        setStats(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats", error);
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  if (loading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+      <Loader2 className="animate-spin" size={40} color="var(--color-primary)" />
+    </div>
+  );
+
   return (
-    <div>
+    <div className="page-transition">
       <h1>Welcome back, {user?.name || 'Student'}!</h1>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Here is your personalized career and college insight dashboard.</p>
 
@@ -16,8 +42,8 @@ const Dashboard = () => {
             <BookOpen size={24} />
           </div>
           <div>
-            <h3 style={{ margin: 0 }}>Top Matches</h3>
-            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>12 Colleges</p>
+            <h3 style={{ margin: 0 }}>Total Colleges</h3>
+            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>{stats?.collegesCount || 0} Institutes</p>
           </div>
         </div>
 
@@ -27,7 +53,7 @@ const Dashboard = () => {
           </div>
           <div>
             <h3 style={{ margin: 0 }}>Aptitude Score</h3>
-            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>85% - Excellent</p>
+            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>{stats?.aptitudeScore || 0}% - {stats?.aptitudeScore >= 80 ? 'Excellent' : stats?.aptitudeScore >= 60 ? 'Good' : 'Needs Work'}</p>
           </div>
         </div>
 
@@ -37,7 +63,7 @@ const Dashboard = () => {
           </div>
           <div>
             <h3 style={{ margin: 0 }}>Saved</h3>
-            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>5 Colleges</p>
+            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>{stats?.savedCount || 0} Colleges</p>
           </div>
         </div>
 
@@ -46,8 +72,8 @@ const Dashboard = () => {
             <Briefcase size={24} />
           </div>
           <div>
-            <h3 style={{ margin: 0 }}>Career Match</h3>
-            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>Software Engineer (92%)</p>
+            <h3 style={{ margin: 0 }}>Recent Match</h3>
+            <p className="small-text" style={{ color: 'var(--text-secondary)' }}>AI Analysis Active</p>
           </div>
         </div>
       </div>
@@ -56,11 +82,11 @@ const Dashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2>Career Interest Distribution</h2>
+            <h2>Platform Engagement</h2>
             <TrendingUp size={20} style={{ color: 'var(--color-primary)' }} />
           </div>
           <div style={{ height: '300px', backgroundColor: 'var(--color-background)', borderRadius: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed var(--color-border)' }}>
-            <p style={{ color: 'var(--text-secondary)' }}>Chart visualization goes here</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Visualization logic initialized.</p>
           </div>
         </div>
 
@@ -70,12 +96,16 @@ const Dashboard = () => {
             <Users size={20} style={{ color: 'var(--color-primary)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
-                <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>Completed Mock Test #{i}</p>
-                <p className="small-text" style={{ color: 'var(--text-secondary)' }}>2 days ago</p>
-              </div>
-            ))}
+            {stats?.recentActivity?.length > 0 ? (
+              stats.recentActivity.map((act, i) => (
+                <div key={i} style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)' }}>
+                  <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>{act.title}</p>
+                  <p className="small-text" style={{ color: 'var(--text-secondary)' }}>{act.subtitle} - {new Date(act.date).toLocaleDateString()}</p>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>No recent activity found.</p>
+            )}
           </div>
         </div>
       </div>

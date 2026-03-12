@@ -12,17 +12,18 @@ const Scholarships = () => {
   useEffect(() => {
     const fetchScholarships = async () => {
       try {
-        const config = { headers: { Authorization: `Bearer ${user.token}` } };
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
         const { data } = await axios.get('/api/ai/scholarships', config);
         setScholarships(data);
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch scholarships");
+        console.error("Failed to fetch scholarships", err);
         setLoading(false);
       }
     };
     fetchScholarships();
-  }, [user.token]);
+  }, []);
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
@@ -56,18 +57,24 @@ const Scholarships = () => {
                 <div>
                   <h3 style={{ margin: 0, marginBottom: '0.4rem', fontSize: '1.2rem', fontWeight: '700' }}>{s.name}</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <p className="small-text" style={{ color: 'var(--text-secondary)', margin: 0 }}>Eligibility: <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{s.eligibility}</span></p>
-                    <p className="small-text" style={{ color: 'var(--text-secondary)', margin: 0 }}>ID: {s._id.slice(-6).toUpperCase()}</p>
+                    <p className="small-text" style={{ color: 'var(--text-secondary)', margin: 0 }}>
+                      Min Marks: <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{s.eligibility?.marksRequired || 'N/A'}%</span>
+                    </p>
+                    <p className="small-text" style={{ color: 'var(--text-secondary)', margin: 0 }}>
+                      Income Limit: <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>₹{s.eligibility?.incomeLimit?.toLocaleString() || 'N/A'}</span>
+                    </p>
                   </div>
                 </div>
               </div>
               
-              <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-background)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '1.5rem', flexGrow: 1 }}>{s.description}</p>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-background)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
                   <Calendar size={16} /> 
                   <span className="small-text" style={{ fontWeight: '600' }}>{new Date(s.deadline).toLocaleDateString()}</span>
                 </div>
-                <span style={{ fontWeight: '800', color: 'var(--color-success)', fontSize: '1.1rem' }}>{s.amount}</span>
+                <span style={{ fontWeight: '800', color: 'var(--color-success)', fontSize: '1.1rem' }}>₹{s.amount}</span>
               </div>
 
               <a 
@@ -89,4 +96,3 @@ const Scholarships = () => {
 };
 
 export default Scholarships;
-

@@ -18,7 +18,6 @@ import AdminScholarshipManager from './admin/pages/AdminScholarshipManager';
 import AdminReviewManager from './admin/pages/AdminReviewManager';
 import AdminSettings from './admin/pages/AdminSettings';
 import AdminAnalytics from './admin/pages/AdminAnalytics';
-import AdminPlaceholder from './admin/pages/AdminPlaceholder';
 import AptitudeTest from './pages/AptitudeTest';
 import CompareColleges from './pages/CompareColleges';
 import SavedColleges from './pages/SavedColleges';
